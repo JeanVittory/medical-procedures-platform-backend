@@ -29,3 +29,7 @@ Before deploying the infrastructure, ensure you have the following:
    cdk bootstrap
    npm run deploy
    ```
+
+## Environment Variables
+
+The `.env.example` file contains a template for the required environment variables. Before deploying the stack, rename this file to `.env` and populate it with the appropriate values.
