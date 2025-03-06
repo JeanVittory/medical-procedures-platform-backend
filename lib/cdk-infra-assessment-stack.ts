@@ -8,6 +8,7 @@ import {
   LambdaIntegration,
 } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Function, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
@@ -21,6 +22,18 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
       sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const dynamoPolicy = new PolicyStatement({
+      effect: Effect.ALLOW,
+      actions: [
+        'dynamodb:Scan',
+        'dynamodb:GetItem',
+        'dynamodb:PutItem',
+        'dynamodb:UpdateItem',
+        'dynamodb:DeleteItem',
+      ],
+      resources: [proceduresTable.tableArn],
     });
 
     const api = new RestApi(this, 'proceduresRestApiGateway', {
@@ -49,7 +62,7 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
     const listProceduresLambda = new Function(this, 'listProceduresLambda', {
       runtime: Runtime.NODEJS_20_X,
       handler: 'list.handler',
-      code: Code.fromAsset('lambda'),
+      code: Code.fromAsset('dist/lambda'),
       environment: {
         TABLE_NAME: proceduresTable.tableName,
       },
@@ -61,7 +74,7 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
       {
         runtime: Runtime.NODEJS_20_X,
         handler: 'update.handler',
-        code: Code.fromAsset('lambda'),
+        code: Code.fromAsset('dist/lambda'),
         environment: {
           TABLE_NAME: proceduresTable.tableName,
         },
@@ -71,7 +84,7 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
     const createProcedureLambda = new Function(this, 'CreateProcedureLambda', {
       runtime: Runtime.NODEJS_20_X,
       handler: 'create.handler',
-      code: Code.fromAsset('lambda'),
+      code: Code.fromAsset('dist/lambda'),
       environment: {
         TABLE_NAME: proceduresTable.tableName,
       },
@@ -80,7 +93,7 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
     const deleteProcedureLambda = new Function(this, 'DeleteProcedureLambda', {
       runtime: Runtime.NODEJS_20_X,
       handler: 'delete.handler',
-      code: Code.fromAsset('lambda'),
+      code: Code.fromAsset('dist/lambda'),
       environment: {
         TABLE_NAME: proceduresTable.tableName,
       },
@@ -90,19 +103,36 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
 
     proceduresResource.addMethod(
       'GET',
-      new LambdaIntegration(listProceduresLambda)
+      new LambdaIntegration(listProceduresLambda),
+      {
+        apiKeyRequired: true,
+      }
     );
     proceduresResource.addMethod(
       'PUT',
-      new LambdaIntegration(updateProceduresLambda)
+      new LambdaIntegration(updateProceduresLambda),
+      {
+        apiKeyRequired: true,
+      }
     );
     proceduresResource.addMethod(
       'POST',
-      new LambdaIntegration(createProcedureLambda)
+      new LambdaIntegration(createProcedureLambda),
+      {
+        apiKeyRequired: true,
+      }
     );
     proceduresResource.addMethod(
       'DELETE',
-      new LambdaIntegration(deleteProcedureLambda)
+      new LambdaIntegration(deleteProcedureLambda),
+      {
+        apiKeyRequired: true,
+      }
     );
+
+    listProceduresLambda.addToRolePolicy(dynamoPolicy);
+    updateProceduresLambda.addToRolePolicy(dynamoPolicy);
+    createProcedureLambda.addToRolePolicy(dynamoPolicy);
+    deleteProcedureLambda.addToRolePolicy(dynamoPolicy);
   }
 }
