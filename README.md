@@ -16,8 +16,9 @@ Before deploying the infrastructure, ensure you have the following:
 
 1. **AWS Account**: An active AWS account with sufficient permissions to create resources.
 2. **AWS CLI**: Installed and configured with your credentials.
-3. **Node.js**: Installed (version 14.x or higher recommended).
+3. **Node.js**: Installed (version 20.x or higher recommended).
 4. **AWS CDK**: Installed globally via `npm install -g aws-cdk`.
+5. **Docker**: Installed and running via Docker Desktop
 
 ## Getting Started
 
