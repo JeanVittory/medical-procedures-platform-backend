@@ -9,7 +9,8 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Function, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 
 export class CdkInfraAssessmentStack extends cdk.Stack {
@@ -59,45 +60,57 @@ export class CdkInfraAssessmentStack extends cdk.Stack {
 
     usagePlan.addApiKey(apiKey);
 
-    const listProceduresLambda = new Function(this, 'listProceduresLambda', {
-      runtime: Runtime.NODEJS_20_X,
-      handler: 'list.handler',
-      code: Code.fromAsset('dist/lambda'),
-      environment: {
-        TABLE_NAME: proceduresTable.tableName,
-      },
-    });
-
-    const updateProceduresLambda = new Function(
+    const listProceduresLambda = new NodejsFunction(
       this,
-      'updateProceduresLambda',
+      'listProceduresLambda',
       {
         runtime: Runtime.NODEJS_20_X,
-        handler: 'update.handler',
-        code: Code.fromAsset('dist/lambda'),
+        handler: 'handler',
+        entry: 'src/lambda/list.ts',
         environment: {
           TABLE_NAME: proceduresTable.tableName,
         },
       }
     );
 
-    const createProcedureLambda = new Function(this, 'CreateProcedureLambda', {
-      runtime: Runtime.NODEJS_20_X,
-      handler: 'create.handler',
-      code: Code.fromAsset('dist/lambda'),
-      environment: {
-        TABLE_NAME: proceduresTable.tableName,
-      },
-    });
+    const updateProceduresLambda = new NodejsFunction(
+      this,
+      'updateProceduresLambda',
+      {
+        runtime: Runtime.NODEJS_20_X,
+        handler: 'handler',
+        entry: 'src/lambda/update.ts',
+        environment: {
+          TABLE_NAME: proceduresTable.tableName,
+        },
+      }
+    );
 
-    const deleteProcedureLambda = new Function(this, 'DeleteProcedureLambda', {
-      runtime: Runtime.NODEJS_20_X,
-      handler: 'delete.handler',
-      code: Code.fromAsset('dist/lambda'),
-      environment: {
-        TABLE_NAME: proceduresTable.tableName,
-      },
-    });
+    const createProcedureLambda = new NodejsFunction(
+      this,
+      'CreateProcedureLambda',
+      {
+        runtime: Runtime.NODEJS_20_X,
+        handler: 'handler',
+        entry: 'src/lambda/create.ts',
+        environment: {
+          TABLE_NAME: proceduresTable.tableName,
+        },
+      }
+    );
+
+    const deleteProcedureLambda = new NodejsFunction(
+      this,
+      'DeleteProcedureLambda',
+      {
+        runtime: Runtime.NODEJS_20_X,
+        handler: 'handler',
+        entry: 'src/lambda/delete.ts',
+        environment: {
+          TABLE_NAME: proceduresTable.tableName,
+        },
+      }
+    );
 
     const proceduresResource = api.root.addResource('procedures');
 
