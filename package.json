@@ -9,7 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "npm run build && cdk deploy"
+    "deploy": "npm run build && cdk deploy",
+    "dev": "./rebuild.sh"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
