@@ -19,6 +19,7 @@ Before deploying the infrastructure, ensure you have the following:
 3. **Node.js**: Installed (version 20.x or higher recommended).
 4. **AWS CDK**: Installed globally via `npm install -g aws-cdk`.
 5. **Docker**: Installed and running via Docker Desktop
+6. **AWS SAM CLI**: Installed to run lambdas locally
 
 ## Getting Started
 
@@ -29,6 +30,13 @@ Before deploying the infrastructure, ensure you have the following:
    npm install
    cdk bootstrap
    npm run deploy
+   ```
+
+## Check lambdas locally
+
+1. Having the AWS SAML CLI already installed:
+   ```bash
+   npm run dev
    ```
 
 ## Environment Variables
