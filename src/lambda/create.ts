@@ -26,7 +26,7 @@ const create = async (event: APIGatewayProxyEvent) => {
 
     return {
       statusCode: 201,
-      body: JSON.stringify('Hello'),
+      body: JSON.stringify('hello world'),
     };
   } catch (error) {
     return {
